@@ -32,7 +32,7 @@ howManyMovies(movies);
 //
 // Iteration 3: All scores average - Get the average of all scores with 2 decimals
 function scoresAverage(moviesArray) {
-  if (movies.length === 0) return 0;
+  if (moviesArray.length === 0) return 0;
 
   const sumaDeTot = moviesArray.reduce((acc, movie) => {
     if(movie.score !== undefined ){
@@ -47,15 +47,28 @@ function scoresAverage(moviesArray) {
 }
 scoresAverage(movies);
 
+// function scoresAverage(moviesArray = []) {
+//   if (moviesArray.length === 0) {
+//     return 0;
+//   }
+//   return round(
+//     moviesArray
+//       .filter((m) => m.score)
+//       .reduce((acc, curr) => acc + curr.score, 0) / moviesArray.length,
+//     2
+//   );
+// }
+
 //OK
 // Iteration 4: Drama movies - Get the average of Drama Movies
 function dramaMoviesScore(moviesArray) {
-  let drama = moviesArray.reduce((acc, movie) => { 
-    if (movie.genre.includes("Drama")) {
-      return acc + movie.score / moviesArray.length
-    }
-  }, 0);
-  return drama; 
+  // let drama = moviesArray.reduce((acc, movie) => { 
+  //   if (movie.genre.includes("Drama")) {
+  //     return acc + movie.score / moviesArray.length
+  //   }
+  // }, 0);
+  // return drama; 
+  return scoresAverage(moviesArray.filter((movie) => movie.genre.includes('Drama')));
 }
 
 //
@@ -89,20 +102,91 @@ function orderAlphabetically(moviesArray) {
 orderAlphabetically(movies);
  
 // BONUS - Iteration 7: Time Format - Turn duration of the movies from hours to minutes
-function turnHoursToMinutes(moviesArray) {
-  let moviesDuration = movies.map((movie) => movie.duration);
-  for (let i = 0; i < moviesDuration.length; i++) {
-    let horas = moviesDuration[i].substring(0, moviesDuration[i].search("h"));
-    let minutos = moviesDuration[i].substring(moviesDuration[i].search("h") + 1, moviesDuration[i].search("min")) * 1;
-    let horasEnMinutos = horas * 60 + minutos;
-    return horasEnMinutos; 
-  }
-}
+// function turnHoursToMinutes(moviesArray) {
+//   const newArr = moviesArray.map(movie => {
+//     return calc(movie.duration);
+//   });
+//   console.log(newArr);
+// }
+// const calc = () => {
+//   const hourInString = element;
+//   const splitHour = hourInString.split(' ');
+//   let hours = 0;
+//   let minutes = 0;
+//   if (splitHour[0]) {
+//     hours = splitHour[0].match(/\d+/)[0];
+//   }
+//   if (condition) {
+//     minutes = parseFloat(splitHour[0].match(/\d+/)[0]);  
+//   }
+//   const sum = hours * 60 + minutes; 
+//   return sum;
+// }
+// turnHoursToMinutes(movies);
+
+// BONUS - Iteration 7: Time Format - Turn duration of the movies from hours to minutes
+let turnHoursToMinutes = (arr) => {
+  let modifiedMovies = [];
+  modifiedMovies = arr.map((movie) => {
+      let newMovieObject = {};
+      let time = movie.duration.split(" ");
+      newMovieObject = { ...movie };
+      if (time.length === 1 && movie.duration.includes('h')) {
+          newMovieObject.duration = parseInt(time[0].split("h")) * 60;
+      } else if (time.length === 1 && movie.duration.includes('min')) {
+          newMovieObject.duration = parseInt(time[0].split("min"));
+      } else {
+          newMovieObject.duration = parseInt(time[0].split("h")) * 60 + parseInt(time[1].split("min"));
+      }
+      return newMovieObject;
+  });
+  return modifiedMovies;
+};
 
 // BONUS - Iteration 8: Best yearly score average - Best yearly score average
-function bestYearAvg(moviesArray) {}
+// function bestYearAvg(moviesArray = []) {
+//   if (!moviesArray || moviesArray.length === 0) {
+//     return null;
+//   }
+//   let averagesPerYear = averageScoresPerYear(mapYearToScores(moviesArray));
+//   const besYear = findMax(averagesPerYear);
+//   return `The best year was ${besYear.year} with an average score of ${besYear.score}`;
+// }
 
-
+// BONUS - Iteration 8: Best yearly score average - Best yearly score average
+let bestYearAvg = (arr) => {
+  if (arr.length === 0) return null;
+  let bestYearAvg = { year: 0, avg: 0 };
+  let yearsMapped = [];
+  arr
+    .map((movie) => movie.year)
+    .forEach((year) => {
+      if (!yearsMapped.includes(year)) {
+        yearsMapped.push(year);
+      }
+    });
+  yearsMapped.forEach((year) => {
+    //Get all movies for year
+    let moviesOfYear = arr.filter((movie) => {
+      return movie.year === year;
+    });
+    //Calc Avg of year movies
+    let yearAvg = moviesOfYear.reduce((acc, movie) => {
+      acc += movie.score / moviesOfYear.length;
+      return acc;
+    }, 0);
+    //Compare values
+    if (yearAvg > bestYearAvg.avg) {
+      bestYearAvg.avg = yearAvg;
+      bestYearAvg.year = year;
+    } else if (yearAvg === bestYearAvg.avg) {
+      if (bestYearAvg.year > year) {
+        bestYearAvg.year = year;
+      }
+    }
+  });
+  return `The best year was ${bestYearAvg.year} with an average score of ${bestYearAvg.avg}`;
+};
 
 // The following is required to make unit tests work.
 /* Environment setup. Do not modify the below code. */
